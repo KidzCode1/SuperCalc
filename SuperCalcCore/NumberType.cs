@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace SuperCalcCore
 {
-    public class Class1
-    {
-    }
+	public enum NumberType
+	{
+		Decimal,
+		Fraction
+	}
 }
