@@ -10,13 +10,13 @@ namespace SuperCalcTests
 		[TestMethod]
 		public void TestFractionToDecimalConversion()
 		{
-			SuperNumber superNumber = new SuperNumber(1, 1, 2);
+			SuperNumber superNumber = new SuperNumber(1, 1, 2);//` <formula 3; 1 \frac{1}{2}>
 			Assert.AreEqual(1.5m, superNumber);
 
-			SuperNumber superNumber2 = new SuperNumber(5, 3, 4);
+			SuperNumber superNumber2 = new SuperNumber(5, 3, 4);//` <formula 3; 5 \frac{3}{4}>
 			Assert.AreEqual(5.75m, superNumber2);
 
-			SuperNumber superNumber3 = new SuperNumber(0, 1, 3);
+			SuperNumber superNumber3 = new SuperNumber(0, 1, 3); //` <formula 3; \frac{1}{3}>
 			Assert.AreEqual(0.3333333333333333333333333333m, superNumber3);
 		}
 
