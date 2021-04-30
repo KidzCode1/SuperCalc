@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SuperCalcCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +24,30 @@ namespace SuperCalc
 		public MainWindow()
 		{
 			InitializeComponent();
+		}
+
+		private void tbxNumber1_TextChanged(object sender, TextChangedEventArgs e)
+		{
+			DecimalFractionator decimalFractionator = DecimalFractionator.Create(tbxNumber1.Text);
+			if (decimalFractionator != null)
+			{
+
+				tbxWhole1.Text = decimalFractionator.wholeNumber.ToString();
+				tbxNumerator1.Text = decimalFractionator.numerator.ToString();
+				tbxDenominator1.Text = decimalFractionator.denominator.ToString();
+			}
+		}
+
+		private void tbxNumber2_TextChanged(object sender, TextChangedEventArgs e)
+		{
+			DecimalFractionator decimalFractionator = DecimalFractionator.Create(tbxNumber2.Text);
+			if (decimalFractionator != null)
+			{
+
+				tbxWhole2.Text = decimalFractionator.wholeNumber.ToString();
+				tbxNumerator2.Text = decimalFractionator.numerator.ToString();
+				tbxDenominator2.Text = decimalFractionator.denominator.ToString();
+			}
 		}
 	}
 }

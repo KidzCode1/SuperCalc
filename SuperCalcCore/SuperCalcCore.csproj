@@ -41,8 +41,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DecimalFractionator.cs" />
     <Compile Include="NumberType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RegexHelper.cs" />
     <Compile Include="SuperMath.cs" />
     <Compile Include="SuperNumber.cs" />
   </ItemGroup>

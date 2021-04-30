@@ -5,8 +5,50 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SuperCalc"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
-    </Grid>
+        Title="MainWindow" Height="650" Width="800" FontSize="38">
+    <StackPanel Orientation="Vertical" >
+        <TextBox x:Name="tbxNumber1" TextChanged="tbxNumber1_TextChanged" >
+        	
+        </TextBox>
+        <TextBox x:Name="tbxNumber2" TextChanged="tbxNumber2_TextChanged" >
+        	
+        </TextBox>
+        <Grid Height="100" Width="140">
+            <TextBox x:Name="tbxWhole1" Text="134" FontSize="56" Margin="-153,0,103,10" HorizontalAlignment="Right" TextAlignment="Right" Width="190"/>
+            <Rectangle Fill="#FF7F7F7F" Width="60" Height="4" Margin="42,42,38,54" ></Rectangle>
+            <TextBox x:Name="tbxNumerator1" Text="2" Margin="49,-10,38,58" Background="Transparent"/>
+            <TextBox x:Name="tbxDenominator1" Text="3" Margin="49,46,38,2" Background="Transparent"/>
+
+        </Grid>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0, 20, 0, 0">
+            <RadioButton x:Name="rbAdd" Margin="0, 0, 40, 0">
+                +
+            </RadioButton>
+            <RadioButton x:Name="rbSubtract" Margin="0, 0, 40, 0">
+                -
+            </RadioButton>
+            <RadioButton x:Name="rbMultiply" Margin="0, 0, 40, 0">
+                *
+            </RadioButton>
+            <RadioButton x:Name="rbDivide">
+                /
+            </RadioButton>
+        </StackPanel>
+        <Grid Height="100" Width="140" Margin="0, 40, 0, 0">
+            <TextBox x:Name="tbxWhole2" Text="134" FontSize="56" Margin="-153,0,103,10" HorizontalAlignment="Right" TextAlignment="Right" Width="190"/>
+            <Rectangle Fill="#FF7F7F7F" Width="60" Height="4" Margin="42,42,38,54" ></Rectangle>
+            <TextBox x:Name="tbxNumerator2" Text="2" Margin="49,-10,38,58" Background="Transparent"/>
+            <TextBox x:Name="tbxDenominator2" Text="3" Margin="49,46,38,2" Background="Transparent"/>
+
+        </Grid>
+
+        <Grid Height="100" Width="140" Margin="0, 40, 0, 0">
+            <TextBox x:Name="tbxWhole3" Text="134" FontSize="56" Margin="-153,0,103,10" HorizontalAlignment="Right" TextAlignment="Right" Width="190"/>
+            <Rectangle Fill="#FF7F7F7F" Width="60" Height="4" Margin="42,42,38,54" ></Rectangle>
+            <TextBox x:Name="tbxNumerator3" Text="2" Margin="49,-10,38,58" Background="Transparent"/>
+            <TextBox x:Name="tbxDenominator3" Text="3" Margin="49,46,38,2" Background="Transparent"/>
+
+        </Grid>
+
+    </StackPanel>
 </Window>

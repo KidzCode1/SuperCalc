@@ -5,10 +5,10 @@ using System.Linq;
 
 namespace SuperCalcCore
 {
+
 	[DebuggerDisplay("{ValueAsStr}")]
 	public class SuperNumber
 	{
-		string valueAsStr;
 		decimal valueField;
 		public decimal Value
 		{
@@ -22,7 +22,7 @@ namespace SuperCalcCore
 			set => valueField = value;
 		}
 
-		
+
 		public string ValueAsStr
 		{
 			get
@@ -40,10 +40,27 @@ namespace SuperCalcCore
 
 		public SuperNumber(int wholeNumber, int numerator, int denominator)
 		{
+			if (denominator < 0)
+				throw new ArgumentException($"Denominator ({denominator}) must always be positive!");
+
+			if (numerator == 0 && denominator == 0)
+				denominator = 1;  // It's cool. 
+
+			if (denominator == 0)
+				throw new ArgumentException($"Denominator ({denominator}) can never be zero!");
+
+			if (Math.Sign(wholeNumber) ==	1 && Math.Sign(numerator) == -1)
+				throw new ArgumentException($"Make the wholeNumber ({wholeNumber}) negative instead of the numerator ({numerator})!");
+
 			Type = NumberType.Fraction;
 			WholeNumber = wholeNumber;
-			Numerator = numerator;
-			Denominator = denominator;
+			int multiplier = 1;
+			if (wholeNumber == 0)
+				multiplier = Math.Sign(numerator);
+			else
+				multiplier = Math.Sign(wholeNumber);
+			Numerator = Math.Abs(numerator) * multiplier;
+			Denominator = Math.Abs(denominator);
 		}
 
 		public SuperNumber(decimal value)
@@ -92,7 +109,7 @@ namespace SuperCalcCore
 			return Value == superNumber.Value;
 		}
 
-		SuperNumber Clone()
+		public SuperNumber Clone()
 		{
 			if (this.Type == NumberType.Decimal)
 				return new SuperNumber(this.Value);
@@ -108,9 +125,15 @@ namespace SuperCalcCore
 			thisSuperNumber.MakeFractionProper();
 			compareNumber.MakeFractionProper();
 
+			bool denominatorsMatch;
+			if (compareNumber.Numerator == 0)
+				denominatorsMatch = true;
+			else
+				denominatorsMatch = thisSuperNumber.Denominator == compareNumber.Denominator;
+
 			return thisSuperNumber.WholeNumber == compareNumber.WholeNumber &&
 						thisSuperNumber.Numerator == compareNumber.Numerator &&
-						thisSuperNumber.Denominator == compareNumber.Denominator;
+						denominatorsMatch;
 		}
 
 		public static SuperNumber operator +(SuperNumber superNumber1, SuperNumber superNumber2)
@@ -122,14 +145,76 @@ namespace SuperCalcCore
 			int newNumerator;
 			int newDenominator;
 
-			newWholeNum = superNumber1.WholeNumber + superNumber2.WholeNumber;
-			newDenominator = superNumber1.Denominator * superNumber2.Denominator;
-			newNumerator = superNumber1.Numerator * superNumber2.Denominator + superNumber2.Numerator * superNumber1.Denominator;
+			SuperNumber improperNum1 = superNumber1.CreateImproper();
+			SuperNumber improperNum2 = superNumber2.CreateImproper();
+
+			newWholeNum = 0;
+			newNumerator = improperNum1.Numerator * improperNum2.Denominator + improperNum2.Numerator * improperNum1.Denominator;
+			newDenominator = improperNum1.Denominator * improperNum2.Denominator;
 
 			SuperNumber answer = new SuperNumber(newWholeNum, newNumerator, newDenominator);
 			answer.MakeFractionProper();
 			return answer;
 		}
+
+		public static SuperNumber operator -(SuperNumber superNumber1, SuperNumber superNumber2)
+		{
+			SuperNumber negativeSup2 = superNumber2.CreateNegative();
+			return superNumber1 + negativeSup2;
+		}
+		public static SuperNumber operator /(SuperNumber superNumber1, SuperNumber superNumber2)
+		{
+			SuperNumber reciprocalSup2 = superNumber2.CreateReciprocal();
+			return superNumber1 * reciprocalSup2;
+		}
+
+
+
+		public static SuperNumber operator *(SuperNumber superNumber1, SuperNumber superNumber2)
+		{
+			if (superNumber1.Type == NumberType.Decimal || superNumber2.Type == NumberType.Decimal)
+				return new SuperNumber(superNumber1.Value * superNumber2.Value);
+			
+			int newWholeNum;
+			int newNumerator;
+			int newDenominator;
+
+			int newSign;
+
+			if (superNumber1.Sign == superNumber2.Sign)
+				newSign = 1;
+			else
+				newSign = -1;
+
+			SuperNumber sn1 = superNumber1.CreateImproper();
+			SuperNumber sn2 = superNumber2.CreateImproper();
+
+			newWholeNum = 0;
+			newNumerator = Math.Abs(sn1.Numerator * sn2.Numerator);
+			newDenominator = Math.Abs(sn1.Denominator * sn2.Denominator);
+
+			SuperNumber answer = new SuperNumber(newSign * newWholeNum, newSign * newNumerator, newDenominator);
+			answer.MakeFractionProper();
+			return answer;
+		}
+
+		public int Sign
+		{
+			get
+			{
+				if (Type == NumberType.Decimal)
+					return Math.Sign(Value);
+
+				if (Numerator == 0 && WholeNumber == 0)
+					return 0;
+
+				if (Numerator == 0)
+					return Math.Sign(WholeNumber);
+
+				return Math.Sign(Numerator);
+			}
+		}
+		
 
 		public SuperNumber()
 		{
@@ -152,17 +237,35 @@ namespace SuperCalcCore
 				Numerator -= offset * Denominator;
 			}
 		}
+
+		public SuperNumber CreateImproper()
+		{
+			if (Type == NumberType.Decimal)
+				throw new Exception($"Cannot make a decimal into a fraction!");
+
+			// Goals: Make the fraction the same, but I want WholeNumber 0.
+			int newNumerator = Numerator + (Denominator * WholeNumber);
+			return new SuperNumber(0, newNumerator, Denominator);
+		}
+
+		public SuperNumber CreateNegative()
+		{
+			if (Type == NumberType.Decimal)
+				return new SuperNumber(-Value);
+			return new SuperNumber(-WholeNumber, -Numerator, Denominator);
+		}
+	
+		public SuperNumber CreateReciprocal()
+		{
+			if (Type == NumberType.Decimal)
+				if (Value == 0)
+					throw new Exception("Cannot take the Reciprocal of zero!");
+				else
+					return new SuperNumber(1 / Value);
+			SuperNumber improperFraction = CreateImproper();
+			int newNumerator = improperFraction.Denominator;
+			int newDenominator = improperFraction.Numerator;
+			return new SuperNumber(0, newNumerator, newDenominator);
+		}
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-

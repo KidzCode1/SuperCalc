@@ -94,5 +94,11 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="SuperCalcCore\SuperCalcCore.csproj">
+      <Project>{8b1e6f1d-0246-4e40-ac40-7ba9757067b4}</Project>
+      <Name>SuperCalcCore</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
