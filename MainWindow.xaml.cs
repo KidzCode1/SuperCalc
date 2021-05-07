@@ -43,7 +43,7 @@ namespace SuperCalc
 			DecimalFractionator decimalFractionator = DecimalFractionator.Create(tbxNumber2.Text);
 			if (decimalFractionator != null)
 			{
-
+p
 				tbxWhole2.Text = decimalFractionator.wholeNumber.ToString();
 				tbxNumerator2.Text = decimalFractionator.numerator.ToString();
 				tbxDenominator2.Text = decimalFractionator.denominator.ToString();

@@ -40,14 +40,11 @@ namespace SuperCalcCore
 
 		public SuperNumber(int wholeNumber, int numerator, int denominator)
 		{
-			if (denominator < 0)
-				throw new ArgumentException($"Denominator ({denominator}) must always be positive!");
+			if (denominator <= 0)
+				throw new ArgumentException($"Denominator ({denominator}) must always have a positive value!");
 
 			if (numerator == 0 && denominator == 0)
 				denominator = 1;  // It's cool. 
-
-			if (denominator == 0)
-				throw new ArgumentException($"Denominator ({denominator}) can never be zero!");
 
 			if (Math.Sign(wholeNumber) ==	1 && Math.Sign(numerator) == -1)
 				throw new ArgumentException($"Make the wholeNumber ({wholeNumber}) negative instead of the numerator ({numerator})!");
