@@ -22,13 +22,13 @@ namespace SuperCalcTests
 		[TestMethod]
 		public void TestFractionToDecimalConversion()
 		{
-			SuperNumber superNumber = new SuperNumber(1, 1, 2);//` <formula 3; 1 \frac{1}{2}>
+			SuperNumber superNumber = new SuperNumber("1 1/2");
 			Assert.AreEqual(1.5m, superNumber);
 
-			SuperNumber superNumber2 = new SuperNumber(5, 3, 4);//` <formula 3; 5 \frac{3}{4}>
+			SuperNumber superNumber2 = new SuperNumber("5 3/4");
 			Assert.AreEqual(5.75m, superNumber2);
 
-			SuperNumber superNumber3 = new SuperNumber(0, 1, 3); //` <formula 3; \frac{1}{3}>
+			SuperNumber superNumber3 = new SuperNumber("1/3");
 			Assert.AreEqual(0.3333333333333333333333333333m, superNumber3);
 		}
 
@@ -37,15 +37,26 @@ namespace SuperCalcTests
 		// 0.9999999999999999999999999999m => 1
 
 		[TestMethod]
+		public void TestToNumFromOne()
+		{
+			Assert.AreEqual(1m, "1".ToNum());
+		}
+
+		[TestMethod]
 		public void TestFractionalAdd()
 		{
 			const decimal oneThird = 0.3333333333333333333333333333m;
-			Assert.AreEqual(1m, new SuperNumber(0, 1, 3) + new SuperNumber(0, 2, 3)); //` <formula 3; \frac{1}{3} + \frac{2}{3}>
+			Assert.AreEqual(1m, "1/3 + 2/3".ToNum());
 
-			Assert.AreEqual(100.5m, new SuperNumber(0, 400, 4) + new SuperNumber(0, 7, 14)); //` <formula 3; \frac{400}{4} + \frac{7}{14}>
+			Assert.AreEqual(100.5m, new SuperNumber("400/4") + new SuperNumber("7/14"));
 
+			Assert.AreEqual(-oneThird, new SuperNumber("1/3") + new SuperNumber("-2/3"));
 
-			Assert.AreEqual(-oneThird, new SuperNumber(0, 1, 3) + new SuperNumber(0, -2, 3)); //` <formula 3; \frac{1}{3} + \frac{-2}{3}>
+			Assert.AreEqual(100.5m, "400/4 + 7/14".ToNum());
+
+			Assert.AreEqual(50.5m, "300/6 + 7/14".ToNum());
+
+			Assert.IsTrue("1/3 + 2/3 = 1".Eval());
 
 
 
@@ -185,6 +196,20 @@ namespace SuperCalcTests
 		{
 			SuperNumber badNegOneTwoThirds = new SuperNumber(1, -2, 3) /* <formula 3; 1 \frac{-2}{3}>  */;
 
+		}
+
+		[TestMethod]
+		[ExpectedException(typeof(ArgumentException))]
+		public void DivZero()
+		{
+			SuperNumber badDivZero = new SuperNumber(1, 1, 0);
+		}
+
+		[TestMethod]
+		[ExpectedException(typeof(ArgumentException))]
+		public void DivZero2()
+		{
+			SuperNumber badDivZero = new SuperNumber("1 1/0");
 		}
 	}
 }

@@ -38,15 +38,49 @@ namespace SuperCalcCore
 
 		public NumberType Type { get; set; }
 
+		public SuperNumber()
+		{
+
+		}
+
+		public SuperNumber(string str)
+		{
+			DecimalFractionator decimalFractionator = DecimalFractionator.Create(str);
+			if (decimalFractionator == null)
+				throw new ArgumentException($"SuperNumber initialization string is invalid: \"{str}\"!");
+
+			if (decimalFractionator.decimalValue != 0)
+			{
+				InitializeDecimal((decimal)decimalFractionator.decimalValue);
+				return;
+			}
+
+			WholeNumber = (int)decimalFractionator.wholeNumber;
+			Numerator = (int)decimalFractionator.numerator;
+			Denominator = (int)decimalFractionator.denominator;
+			InitializeFraction(WholeNumber, Numerator, Denominator);
+		}
+
+		public override string ToString()
+		{
+			return $"SuperNumber({Value.ToString()})";
+		}
+
+
 		public SuperNumber(int wholeNumber, int numerator, int denominator)
 		{
-			if (denominator <= 0)
-				throw new ArgumentException($"Denominator ({denominator}) must always have a positive value!");
+			InitializeFraction(wholeNumber, numerator, denominator);
+		}
 
+		private void InitializeFraction(int wholeNumber, int numerator, int denominator)
+		{
 			if (numerator == 0 && denominator == 0)
 				denominator = 1;  // It's cool. 
 
-			if (Math.Sign(wholeNumber) ==	1 && Math.Sign(numerator) == -1)
+			if (denominator <= 0)
+				throw new ArgumentException($"Denominator ({denominator}) must always have a positive value!");
+
+			if (Math.Sign(wholeNumber) == 1 && Math.Sign(numerator) == -1)
 				throw new ArgumentException($"Make the wholeNumber ({wholeNumber}) negative instead of the numerator ({numerator})!");
 
 			Type = NumberType.Fraction;
@@ -61,6 +95,11 @@ namespace SuperCalcCore
 		}
 
 		public SuperNumber(decimal value)
+		{
+			InitializeDecimal(value);
+		}
+
+		private void InitializeDecimal(decimal value)
 		{
 			Type = NumberType.Decimal;
 			Value = value;
@@ -212,11 +251,6 @@ namespace SuperCalcCore
 			}
 		}
 		
-
-		public SuperNumber()
-		{
-
-		}
 		public void MakeFractionProper()
 		{
 			List<int> numeratorFactors = SuperMath.GetFactors(Numerator);

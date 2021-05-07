@@ -26,15 +26,37 @@ namespace SuperCalc
 			InitializeComponent();
 		}
 
+		void ShowError(string message)
+		{
+			Background = new SolidColorBrush(Color.FromRgb(255, 125, 125));
+			Title = message;
+		}
+		void AllGood()
+		{
+			Background = new SolidColorBrush(Colors.White);
+			Title = "All Good!";
+		}
+
 		private void tbxNumber1_TextChanged(object sender, TextChangedEventArgs e)
 		{
-			DecimalFractionator decimalFractionator = DecimalFractionator.Create(tbxNumber1.Text);
-			if (decimalFractionator != null)
+			try
 			{
+				// Here...
+				if (tbxNumber1.Text == "")
+				{
+					AllGood();  // No need to show errors for empty values!
+					Title = "Um, but we still need a number for tbxNumber1...";
+					tbxNumber1.Background = new SolidColorBrush(Color.FromRgb(255, 255, 201));
+					return;
+				}
+				tbxNumber1.Background = new SolidColorBrush(Colors.White);
 
-				tbxWhole1.Text = decimalFractionator.wholeNumber.ToString();
-				tbxNumerator1.Text = decimalFractionator.numerator.ToString();
-				tbxDenominator1.Text = decimalFractionator.denominator.ToString();
+				SuperNumber superNumber = tbxNumber1.Text.ToNum();
+				AllGood();
+			}
+			catch (Exception ex)
+			{
+				ShowError(ex.Message);
 			}
 		}
 
@@ -43,7 +65,7 @@ namespace SuperCalc
 			DecimalFractionator decimalFractionator = DecimalFractionator.Create(tbxNumber2.Text);
 			if (decimalFractionator != null)
 			{
-p
+
 				tbxWhole2.Text = decimalFractionator.wholeNumber.ToString();
 				tbxNumerator2.Text = decimalFractionator.numerator.ToString();
 				tbxDenominator2.Text = decimalFractionator.denominator.ToString();
