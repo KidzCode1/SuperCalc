@@ -91,6 +91,34 @@ namespace SuperCalcTests
 		}
 
 		[TestMethod]
+		public void TestUnitsPowers1()
+		{
+			// ⁰¹²³⁴⁵⁶⁷⁸⁹‾
+			Assert.AreEqual("3m⁴", "1 1/2 m³ * 2m".ToNum());
+		}
+
+		[TestMethod]
+		public void TestUnitsPowers2()
+		{
+			Assert.AreEqual("8x²", "4x * 2x".ToNum());
+		}
+
+		[TestMethod]
+		public void TestLikeUnitDivision()
+		{
+			Assert.AreEqual("14", "7 birds / 1/2 bird".ToNum());
+			Assert.AreEqual("21 birds", "7 birds / 1/3".ToNum());
+		}
+
+		[TestMethod]
+		public void TestLikeUnits()
+		{
+			Assert.AreEqual("1 bird + 2 snakes", "1 bird + 2 snakes".ToNum());
+			Assert.AreEqual("1 bird + 2 bird²", "1 bird + 2 bird²".ToNum());
+			Assert.AreEqual("21 birds", "7 birds / 1/3".ToNum());
+		}
+
+		[TestMethod]
 		public void TestFractionalAdd()
 		{
 			const decimal oneThird = 0.3333333333333333333333333333m;
