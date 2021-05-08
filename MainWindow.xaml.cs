@@ -37,21 +37,27 @@ namespace SuperCalc
 			Title = "All Good!";
 		}
 
-		private void tbxNumber1_TextChanged(object sender, TextChangedEventArgs e)
+		void SetAnswer(string answer)
+		{
+			lblAnswer.Content = answer;
+		}
+
+		private void tbxEquation_TextChanged(object sender, TextChangedEventArgs e)
 		{
 			try
 			{
 				// Here...
-				if (tbxNumber1.Text == "")
+				if (tbxEquation.Text == "")
 				{
 					AllGood();  // No need to show errors for empty values!
-					Title = "Um, but we still need a number for tbxNumber1...";
-					tbxNumber1.Background = new SolidColorBrush(Color.FromRgb(255, 255, 201));
+					SetAnswer("Enter an equation above!");
+					tbxEquation.Background = new SolidColorBrush(Color.FromRgb(255, 255, 201));
 					return;
 				}
-				tbxNumber1.Background = new SolidColorBrush(Colors.White);
+				tbxEquation.Background = new SolidColorBrush(Colors.White);
 
-				SuperNumber superNumber = tbxNumber1.Text.ToNum();
+				SuperNumber superNumber = tbxEquation.Text.ToNum();
+				SetAnswer(superNumber.DisplayStr);
 				AllGood();
 			}
 			catch (Exception ex)
@@ -60,16 +66,16 @@ namespace SuperCalc
 			}
 		}
 
-		private void tbxNumber2_TextChanged(object sender, TextChangedEventArgs e)
+		private void btnCopyAnswer_Click(object sender, RoutedEventArgs e)
 		{
-			DecimalFractionator decimalFractionator = DecimalFractionator.Create(tbxNumber2.Text);
-			if (decimalFractionator != null)
-			{
+			Clipboard.SetText(lblAnswer.Content as string);
+		}
 
-				tbxWhole2.Text = decimalFractionator.wholeNumber.ToString();
-				tbxNumerator2.Text = decimalFractionator.numerator.ToString();
-				tbxDenominator2.Text = decimalFractionator.denominator.ToString();
-			}
+		private void btnCreateTestCase_Click(object sender, RoutedEventArgs e)
+		{
+			string testCode = $"Assert.AreEqual(\"{lblAnswer.Content}\", \"{tbxEquation.Text}\".ToNum());";
+			Clipboard.SetText(testCode);
+			MessageBox.Show(testCode, "Copied To The Clipboard");
 		}
 	}
 }

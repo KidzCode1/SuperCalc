@@ -61,9 +61,52 @@ namespace SuperCalcCore
 			InitializeFraction(WholeNumber, Numerator, Denominator);
 		}
 
+		/// <summary>
+		/// Returns a new SuperNumber as a simple fraction.
+		/// </summary>
+		public SuperNumber Simplify()
+		{
+			SuperNumber clone = Clone();
+			clone.MakeFractionProper();
+			return clone;
+		}
+
+		string GetFractionDisplayStr()
+		{
+			//if (Denominator == 1)
+			//	return $"{WholeNumber + Numerator}";
+			if (WholeNumber == 0)
+			{
+				return $"{Numerator}/{Denominator}";
+			}
+			if (Numerator != 0)
+			{
+				return $"{WholeNumber} {Numerator}/{Denominator}"; // 1 1/2
+			}
+			else
+			{
+				return $"{WholeNumber}";
+			}
+		}
+
+		public string DisplayStr
+		{
+			get
+			{
+				if (Type == NumberType.Fraction)
+				{
+					SuperNumber superNumber = Simplify();
+					return superNumber.GetFractionDisplayStr();
+				}
+
+				return Value.ToString();
+			}
+		}
+		
+
 		public override string ToString()
 		{
-			return $"SuperNumber({Value.ToString()})";
+			return $"SN({DisplayStr})";
 		}
 
 
@@ -99,14 +142,29 @@ namespace SuperCalcCore
 			InitializeDecimal(value);
 		}
 
+		bool IsWholeNumber(decimal value)
+		{
+			decimal absValue = Math.Abs(value);
+			decimal decimalPart = absValue - Math.Floor(absValue);
+			if (decimalPart == 0)
+				return true;
+			return false;
+		}
+
 		private void InitializeDecimal(decimal value)
 		{
+			if (IsWholeNumber(value))
+			{
+				InitializeFraction((int)value, 0, 0);
+				return;
+			}
 			Type = NumberType.Decimal;
 			Value = value;
 		}
 
 		// Implicit conversion to a Decimal:
 		public static implicit operator decimal(SuperNumber d) => d.Value;
+		public static implicit operator string(SuperNumber d) => d.DisplayStr;
 
 		public static bool operator ==(SuperNumber left, SuperNumber right)
 		{
@@ -147,10 +205,10 @@ namespace SuperCalcCore
 
 		public SuperNumber Clone()
 		{
-			if (this.Type == NumberType.Decimal)
-				return new SuperNumber(this.Value);
+			if (Type == NumberType.Decimal)
+				return new SuperNumber(Value);
 
-			return new SuperNumber(this.WholeNumber, this.Numerator, this.Denominator);
+			return new SuperNumber(WholeNumber, Numerator, Denominator);
 		}
 
 		public bool AreFractionsEquivalent(SuperNumber superNumber)
@@ -200,6 +258,9 @@ namespace SuperCalcCore
 		}
 		public static SuperNumber operator /(SuperNumber superNumber1, SuperNumber superNumber2)
 		{
+			if (superNumber2.Type == NumberType.Decimal)
+				return new SuperNumber(superNumber1.Value / superNumber2.Value);
+			
 			SuperNumber reciprocalSup2 = superNumber2.CreateReciprocal();
 			return superNumber1 * reciprocalSup2;
 		}
@@ -251,6 +312,9 @@ namespace SuperCalcCore
 			}
 		}
 		
+		/// <summary>
+		/// Simplifies the fraction...
+		/// </summary>
 		public void MakeFractionProper()
 		{
 			List<int> numeratorFactors = SuperMath.GetFactors(Numerator);
@@ -261,7 +325,7 @@ namespace SuperCalcCore
 				Numerator /= commonFactor;
 				Denominator /= commonFactor;
 			}
-			if (Numerator > Denominator)
+			if (Numerator >= Denominator)
 			{
 				int offset = Numerator / Denominator;
 				WholeNumber += offset;
