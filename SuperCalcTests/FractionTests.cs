@@ -4,6 +4,7 @@ using SuperCalcCore;
 
 namespace SuperCalcTests
 {
+
 	[TestClass]
 	public class RegexTests
 	{
@@ -78,6 +79,16 @@ namespace SuperCalcTests
 		{
 			Assert.AreEqual(1m, "1".ToNum());
 		}
+
+		[TestMethod]
+		public void TestDecimalToFractionConversion()
+		{
+			Assert.AreEqual("1/2", "0.5".ToNum().ConvertToFraction());
+			Assert.AreEqual("1/4", "0.25".ToNum().ConvertToFraction());
+			Assert.AreEqual("1/8", "0.125".ToNum().ConvertToFraction());
+			Assert.AreEqual("1/16", "0.0625".ToNum().ConvertToFraction());
+		}
+
 		[TestMethod]
 		public void TestFourNums()
 		{

@@ -41,16 +41,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DecimalFractionator.cs" />
-    <Compile Include="EquationFinder.cs" />
-    <Compile Include="FindLeftRight.cs" />
-    <Compile Include="FindNumberUnit.cs" />
+    <Compile Include="RegEx\DecimalFractionator.cs" />
+    <Compile Include="RegEx\EquationFinder.cs" />
+    <Compile Include="RegEx\FindLeftRight.cs" />
+    <Compile Include="RegEx\FindNumberUnit.cs" />
     <Compile Include="NumberType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RegexHelper.cs" />
+    <Compile Include="RegEx\FindUnitPower.cs" />
+    <Compile Include="RegEx\RegexHelper.cs" />
     <Compile Include="SuperMath.cs" />
     <Compile Include="SuperNumber.cs" />
     <Compile Include="SuperNumberExtensions.cs" />
+    <Compile Include="UnitPower.cs" />
+    <Compile Include="UtilityMethods.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

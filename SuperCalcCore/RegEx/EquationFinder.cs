@@ -4,8 +4,13 @@ using System.Text.RegularExpressions;
 
 namespace SuperCalcCore
 {
+	// Sample usage: 
+	// FindUnitPower findUnitPower = FindUnitPower.Create("m^123.3");
+
+
 	public class EquationFinder
 	{
+
 		public string Left { get; set; }
 		public string Right { get; set; }
 

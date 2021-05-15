@@ -5,10 +5,10 @@ using System.Linq;
 
 namespace SuperCalcCore
 {
-
 	[DebuggerDisplay("{ValueAsStr}")]
 	public class SuperNumber
 	{
+		List<UnitPower> unitPowers = new List<UnitPower>();
 		decimal valueField;
 		public decimal Value
 		{
@@ -64,10 +64,32 @@ namespace SuperCalcCore
 			}
 			else  // Found units!
 			{
+				numberStr = findNumberUnit.number.Trim();
+				string[] unitStrs = findNumberUnit.units.Split(' ');
+				foreach (string unitStr in unitStrs)
+				{
+					FindUnitPower findUnitPower = FindUnitPower.Create(unitStr);
+					if (findUnitPower != null)
+					{
+						// We got something!!!
+						if (findUnitPower.superScriptPower != null)  
+						{
+							// We found the "¹²³" superscript power syntax!
+							// ˉ⁰¹²³⁴⁵⁶⁷⁸⁹
+						}
+						else
+						{
+							// We found the "^123" power syntax!
+							AddUnitPower(findUnitPower.unit, findUnitPower.power);
+						}
+						//findUnitPower.unit
+					}
+				}
+				//FindUnitPower
 				// TODO: Add the units/variables to this number, along with their powers.
 				// TODO: Modify all the operator overloads so they still work correctly with units and variables.
-				// 
-				numberStr = findNumberUnit.number;
+				// TODO: Make sure we use the units/variables in our answers!
+
 			}
 
 			DecimalFractionator decimalFractionator = DecimalFractionator.Create(numberStr);
@@ -337,7 +359,7 @@ namespace SuperCalcCore
 			}
 		}
 
-		SuperNumber ConvertToFraction()
+		public SuperNumber ConvertToFraction()
 		{
 			int decimalPlaces = SuperMath.GetDecimalPlaces(Value);
 			// Value = 0.5
@@ -429,6 +451,38 @@ namespace SuperCalcCore
 				newNumerator *= -1;
 			}
 			return new SuperNumber(0, newNumerator, newDenominator);
+		}
+
+		void AddUnitPower(string unit, double power)
+		{
+			UnitPower foundUnit = FindUnit(unit);
+			if (foundUnit != null)
+			{
+				// We found the unit. It was here all along!!!
+				foundUnit.Power += (decimal)power;
+			}
+			else // Need to add this...
+			{
+				unitPowers.Add(new UnitPower()
+				{
+					Name = unit,
+					Power = (decimal)power
+				});
+			}
+		}
+
+		public decimal GetPower(string unitName)
+		{
+			UnitPower findUnit = FindUnit(unitName);
+			if (findUnit == null)
+				return 0;
+			return findUnit.Power;
+		}
+
+		private UnitPower FindUnit(string unit)
+		{
+			return unitPowers.FirstOrDefault(x =>
+				UtilityMethods.MakeSingular(x.Name).ToLower() == UtilityMethods.MakeSingular(unit).ToLower());
 		}
 	}
 }

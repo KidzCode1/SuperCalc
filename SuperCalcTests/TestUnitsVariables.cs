@@ -28,6 +28,7 @@ namespace SuperCalcTests
 		[TestMethod]
 		public void TestUnitsPowers1()
 		{
+			// TODO: Support meters/second (dividing units) as a valid unit
 			// exponents: ⁰¹²³⁴⁵⁶⁷⁸⁹ˉ
 			Assert.AreEqual("3m⁴", "1 1/2 m³ * 2m".ToNum());
 		}

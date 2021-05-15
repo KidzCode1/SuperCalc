@@ -7,16 +7,31 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="650" Width="800" FontSize="38">
     <StackPanel Orientation="Vertical" >
-        <TextBox x:Name="tbxEquation" TextChanged="tbxEquation_TextChanged" >
+        <Border x:Name="bdrEquation" BorderBrush="White" BorderThickness="6">
+            <TextBox x:Name="tbxEquation" TextChanged="tbxEquation_TextChanged" PreviewKeyDown="tbxEquation_KeyDown">
 
-        </TextBox>
+            </TextBox>
+        </Border>
+        <TextBlock x:Name="tbOverTheTopSuperScriptExplosion" Text="" Width="Auto" Height="Auto" FontSize="20"/>
+
+            <!--We want to convert this: 5^2 to this: 5²
         
-        <Label x:Name="lblAnswerDecimal" Content="Enter an equation above!"/>
-        <Label x:Name="lblAnswerFraction" Content=""/>
+        We type the caret to enter superscript mode!!!
+        Indicator - superscript mode engaged!!!
+        Enter to exit superscript mode!!!
+        
+        Backspace works to the start of the number, then stops. Backspace one more time exits ssm.
+        
+        
+        We need to type a "2", but get a "²"
+        
+        -->
+
+        <Label x:Name="lblAnswerDecimal" Content="Enter an equation above!" MouseLeftButtonDown="lblAnswerDecimal_MouseLeftButtonDown"/>
+        <Label x:Name="lblAnswerImproperFraction" Content="" MouseLeftButtonDown="lblAnswerImproperFraction_MouseLeftButtonDown"/>
+        <Label x:Name="lblAnswerMixedNumberFraction" Content="" MouseLeftButtonDown="lblAnswerMixedNumberFraction_MouseLeftButtonDown"/>
+        <TextBlock Text="Click on a label above to copy that answer to the clipboard." Width="Auto" Height="Auto" FontSize="19"/>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0, 20, 0, 0"/>
-        <Button x:Name="btnCopyAnswer" MaxWidth="370" Click="btnCopyAnswer_Click" >
-            Copy Answer
-        </Button>
         <Button x:Name="btnCreateTestCase" MaxWidth="370" Margin="0, 20, 0, 0" Click="btnCreateTestCase_Click">
         	Create Test Case.
         </Button>

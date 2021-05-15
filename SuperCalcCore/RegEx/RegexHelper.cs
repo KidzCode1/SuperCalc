@@ -4,9 +4,6 @@ using System.Text.RegularExpressions;
 
 namespace SuperCalcCore
 {
-	// Sample usage: 
-	// 
-
 	public static class RegexHelper
 	{
 		public static T GetValue<T>(MatchCollection matches, string groupName)

@@ -4,12 +4,6 @@ using System.Text.RegularExpressions;
 
 namespace SuperCalcCore
 {
-	// Sample usage: 
-	// EquationFinder equationFinder = EquationFinder.Create("1 3/4 / 1 8/7 = 2");
-
-
-
-
 	public class DecimalFractionator
 	{
 		public double wholeNumber { get; set; }
