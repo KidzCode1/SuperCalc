@@ -10,7 +10,9 @@
         <TextBox x:Name="tbxEquation" TextChanged="tbxEquation_TextChanged" >
 
         </TextBox>
-        <Label x:Name="lblAnswer" Content="Enter an equation above!"/>
+        
+        <Label x:Name="lblAnswerDecimal" Content="Enter an equation above!"/>
+        <Label x:Name="lblAnswerFraction" Content=""/>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0, 20, 0, 0"/>
         <Button x:Name="btnCopyAnswer" MaxWidth="370" Click="btnCopyAnswer_Click" >
             Copy Answer

@@ -45,7 +45,32 @@ namespace SuperCalcCore
 
 		public SuperNumber(string str)
 		{
-			DecimalFractionator decimalFractionator = DecimalFractionator.Create(str);
+			/* str would be "1 1/2m" */
+
+			// We need a number/units splitter.
+			// 1 1/2m -> 1 1/2 and "m" to the power of one.
+			// 1 bird -> 1 and "bird" to the power of one.
+			// 2m³ -> 2 and "m" to the power of three.
+
+			// What if we found and stripped away units here?
+			// DecimalFractionator works well with numbers like this: 1 1/2  0.3456
+			// But DecimalFractionator fails with anything with a unit.
+
+			string numberStr;
+			FindNumberUnit findNumberUnit = FindNumberUnit.Create(str);
+			if (findNumberUnit == null)  // It's just a number - no units.
+			{
+				numberStr = str;  // Just use that 
+			}
+			else  // Found units!
+			{
+				// TODO: Add the units/variables to this number, along with their powers.
+				// TODO: Modify all the operator overloads so they still work correctly with units and variables.
+				// 
+				numberStr = findNumberUnit.number;
+			}
+
+			DecimalFractionator decimalFractionator = DecimalFractionator.Create(numberStr);
 			if (decimalFractionator == null)
 				throw new ArgumentException($"SuperNumber initialization string is invalid: \"{str}\"!");
 
@@ -311,7 +336,45 @@ namespace SuperCalcCore
 				return Math.Sign(Numerator);
 			}
 		}
-		
+
+		SuperNumber ConvertToFraction()
+		{
+			int decimalPlaces = SuperMath.GetDecimalPlaces(Value);
+			// Value = 0.5
+			// decimalPlaces == 1
+			// int tenPower = 10^decimalPlaces;
+			// numerator = Value * tenPower = 5
+			// denominator =  tenPower
+
+			int tenPower = (int)Math.Pow(10, decimalPlaces);
+			int denominator = tenPower;
+			int numerator = (int)(Value * tenPower);
+
+			return new SuperNumber(0, numerator, denominator).Simplify();
+		}
+
+		public string ImproperFractionStr
+		{
+			get
+			{
+				if (Type == NumberType.Decimal)
+					return ConvertToFraction().CreateImproper().ImproperFractionStr;
+				else
+					return $"{Denominator * WholeNumber + Numerator}/{Denominator}";
+			}
+		}
+		public string MixedNumberFractionStr
+		{
+			get
+			{
+				if (Type == NumberType.Decimal)
+					return ConvertToFraction().MixedNumberFractionStr;
+				else if (WholeNumber == 0)
+					return $"{Numerator}/{Denominator}";
+				return $"{WholeNumber} {Numerator}/{Denominator}";
+			}
+		}
+
 		/// <summary>
 		/// Simplifies the fraction...
 		/// </summary>
@@ -360,6 +423,11 @@ namespace SuperCalcCore
 			SuperNumber improperFraction = CreateImproper();
 			int newNumerator = improperFraction.Denominator;
 			int newDenominator = improperFraction.Numerator;
+			if (newDenominator < 0)
+			{
+				newDenominator *= -1;
+				newNumerator *= -1;
+			}
 			return new SuperNumber(0, newNumerator, newDenominator);
 		}
 	}

@@ -41,6 +41,20 @@ namespace SuperCalcCore
 			return result;
 		}
 
+		public static int GetDecimalPlaces(decimal n)
+		{
+			n = Math.Abs(n);  // n == 1.234
+			n -= (int)n;  // 1.234 -= 1 ---> n == 0.234
+			var decimalPlaces = 0;
+			while (n > 0)   // 0.234 true; 0.34 true; 0.4 true
+			{
+				decimalPlaces++;  // 1; 2; 3
+				n *= 10;   // n == 2.34; n == 3.4; 4
+				n -= (int)n;  // n == 0.34; n == 0.4; n == 0
+			}
+			return decimalPlaces;  // 3
+		}
+
 		public static List<int> GetCommon(List<int> list1, List<int> list2)
 		{
 			List<int> list2Clone = new List<int>(list2);

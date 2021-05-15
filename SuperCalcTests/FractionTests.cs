@@ -5,6 +5,43 @@ using SuperCalcCore;
 namespace SuperCalcTests
 {
 	[TestClass]
+	public class RegexTests
+	{
+		private TestContext testContextInstance;
+
+		/// <summary>
+		///Gets or sets the test context which provides
+		///information about and functionality for the current test run.
+		///</summary>
+		public TestContext TestContext
+		{
+			get
+			{
+				return testContextInstance;
+			}
+			set
+			{
+				testContextInstance = value;
+			}
+		}
+
+		[TestMethod]
+		public void TestFindNumberUnits()
+		{
+			FindNumberUnit findNumberUnit = FindNumberUnit.Create("1 1/2m");
+			Assert.AreEqual("1 1/2", findNumberUnit.number);
+			Assert.AreEqual("m", findNumberUnit.units);
+
+			findNumberUnit = FindNumberUnit.Create("2m³");
+			Assert.AreEqual("2", findNumberUnit.number);
+			Assert.AreEqual("m³", findNumberUnit.units);
+
+			findNumberUnit = FindNumberUnit.Create("1 bird");
+			Assert.AreEqual("1", findNumberUnit.number);
+			Assert.AreEqual("bird", findNumberUnit.units);
+		}
+	}
+	[TestClass]
 	public class FractionTests
 	{
 		SuperNumber oneSixth = new SuperNumber(0, 1, 6);
@@ -91,31 +128,21 @@ namespace SuperCalcTests
 		}
 
 		[TestMethod]
-		public void TestUnitsPowers1()
+		public void TestFractionalConversion()
 		{
-			// ⁰¹²³⁴⁵⁶⁷⁸⁹‾
-			Assert.AreEqual("3m⁴", "1 1/2 m³ * 2m".ToNum());
+			Assert.AreEqual("1/2", "0.5".ToNum().ImproperFractionStr);
+			Assert.AreEqual("1/4", "0.25".ToNum().ImproperFractionStr);
+			Assert.AreEqual("1 1/4", "1.25".ToNum().MixedNumberFractionStr);
+			Assert.AreEqual("5/4", "1.25".ToNum().ImproperFractionStr);
 		}
 
 		[TestMethod]
-		public void TestUnitsPowers2()
+		public void TestDivideNeg()
 		{
-			Assert.AreEqual("8x²", "4x * 2x".ToNum());
-		}
-
-		[TestMethod]
-		public void TestLikeUnitDivision()
-		{
-			Assert.AreEqual("14", "7 birds / 1/2 bird".ToNum());
-			Assert.AreEqual("21 birds", "7 birds / 1/3".ToNum());
-		}
-
-		[TestMethod]
-		public void TestLikeUnits()
-		{
-			Assert.AreEqual("1 bird + 2 snakes", "1 bird + 2 snakes".ToNum());
-			Assert.AreEqual("1 bird + 2 bird²", "1 bird + 2 bird²".ToNum());
-			Assert.AreEqual("21 birds", "7 birds / 1/3".ToNum());
+			Assert.AreEqual("25/33", "1 2/3 / 2 1/5".ToNum());
+			Assert.AreEqual("-25/33", "-1 2/3 / 2 1/5".ToNum());
+			Assert.AreEqual("-25/33", "1 2/3 / -2 1/5".ToNum());
+			Assert.AreEqual("25/33", "-1 2/3 / -2 1/5".ToNum());
 		}
 
 		[TestMethod]
@@ -123,6 +150,8 @@ namespace SuperCalcTests
 		{
 			const decimal oneThird = 0.3333333333333333333333333333m;
 			Assert.AreEqual(1m, "1/3 + 2/3".ToNum());
+
+			
 
 			Assert.AreEqual(100.5m, new SuperNumber("400/4") + new SuperNumber("7/14"));
 

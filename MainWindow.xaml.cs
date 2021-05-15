@@ -37,9 +37,14 @@ namespace SuperCalc
 			Title = "All Good!";
 		}
 
-		void SetAnswer(string answer)
+		void SetAnswerDecimal(string answer)
 		{
-			lblAnswer.Content = answer;
+			lblAnswerDecimal.Content = answer;
+		}
+
+		void SetAnswerFraction(string answer)
+		{
+			lblAnswerFraction.Content = answer;
 		}
 
 		private void tbxEquation_TextChanged(object sender, TextChangedEventArgs e)
@@ -50,14 +55,14 @@ namespace SuperCalc
 				if (tbxEquation.Text == "")
 				{
 					AllGood();  // No need to show errors for empty values!
-					SetAnswer("Enter an equation above!");
+					SetAnswerDecimal("Enter an equation above!");
 					tbxEquation.Background = new SolidColorBrush(Color.FromRgb(255, 255, 201));
 					return;
 				}
 				tbxEquation.Background = new SolidColorBrush(Colors.White);
 
 				SuperNumber superNumber = tbxEquation.Text.ToNum();
-				SetAnswer(superNumber.DisplayStr);
+				SetAnswerDecimal(superNumber.DisplayStr);
 				AllGood();
 			}
 			catch (Exception ex)
@@ -68,12 +73,12 @@ namespace SuperCalc
 
 		private void btnCopyAnswer_Click(object sender, RoutedEventArgs e)
 		{
-			Clipboard.SetText(lblAnswer.Content as string);
+			Clipboard.SetText(lblAnswerDecimal.Content as string);
 		}
 
 		private void btnCreateTestCase_Click(object sender, RoutedEventArgs e)
 		{
-			string testCode = $"Assert.AreEqual(\"{lblAnswer.Content}\", \"{tbxEquation.Text}\".ToNum());";
+			string testCode = $"Assert.AreEqual(\"{lblAnswerDecimal.Content}\", \"{tbxEquation.Text}\".ToNum());";
 			Clipboard.SetText(testCode);
 			MessageBox.Show(testCode, "Copied To The Clipboard");
 		}
