@@ -76,6 +76,7 @@ namespace SuperCalcCore
 						{
 							// We found the "¹²³" superscript power syntax!
 							// ˉ⁰¹²³⁴⁵⁶⁷⁸⁹
+							AddUnitPower(findUnitPower.unit, UtilityMethods.SuperScriptToNormal(findUnitPower.superScriptPower));
 						}
 						else
 						{
@@ -118,10 +119,26 @@ namespace SuperCalcCore
 			return clone;
 		}
 
+		string GetUnitsDisplayStr()
+		{
+			string result = "";
+			
+			foreach (UnitPower unitPower in unitPowers)
+			{
+				result += $"{unitPower.Name}{UtilityMethods.NormalToSuperScript(unitPower.Power)}";
+			}
+
+			return result;  // "m³"
+		}
+
+
 		string GetFractionDisplayStr()
 		{
-			//if (Denominator == 1)
-			//	return $"{WholeNumber + Numerator}";
+			return GetMixedFraction() + GetUnitsDisplayStr();
+		}
+
+		private string GetMixedFraction()
+		{
 			if (WholeNumber == 0)
 			{
 				return $"{Numerator}/{Denominator}";
@@ -146,7 +163,7 @@ namespace SuperCalcCore
 					return superNumber.GetFractionDisplayStr();
 				}
 
-				return Value.ToString();
+				return Value.ToString() + GetUnitsDisplayStr();
 			}
 		}
 		
@@ -250,12 +267,20 @@ namespace SuperCalcCore
 			return Value == superNumber.Value;
 		}
 
+		void CopyUnitsFrom(SuperNumber source)
+		{
+			foreach (UnitPower unitPower in source.unitPowers)
+				unitPowers.Add(new UnitPower(unitPower));
+		}
 		public SuperNumber Clone()
 		{
+			SuperNumber clone;
 			if (Type == NumberType.Decimal)
-				return new SuperNumber(Value);
-
-			return new SuperNumber(WholeNumber, Numerator, Denominator);
+				clone = new SuperNumber(Value);
+			else
+				clone = new SuperNumber(WholeNumber, Numerator, Denominator);
+			clone.CopyUnitsFrom(this);
+			return clone;
 		}
 
 		public bool AreFractionsEquivalent(SuperNumber superNumber)

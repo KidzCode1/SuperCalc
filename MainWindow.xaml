@@ -14,7 +14,7 @@
         </Border>
         <TextBlock x:Name="tbOverTheTopSuperScriptExplosion" Text="" Width="Auto" Height="Auto" FontSize="20"/>
 
-            <!--We want to convert this: 5^2 to this: 5²
+        <!--We want to convert this: 5^2 to this: 5²
         
         We type the caret to enter superscript mode!!!
         Indicator - superscript mode engaged!!!
@@ -33,7 +33,7 @@
         <TextBlock Text="Click on a label above to copy that answer to the clipboard." Width="Auto" Height="Auto" FontSize="19"/>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0, 20, 0, 0"/>
         <Button x:Name="btnCreateTestCase" MaxWidth="370" Margin="0, 20, 0, 0" Click="btnCreateTestCase_Click">
-        	Create Test Case.
+            Create Test Case.
         </Button>
     </StackPanel>
 </Window>

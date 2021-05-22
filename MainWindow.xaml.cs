@@ -129,22 +129,102 @@ namespace SuperCalc
 			bdrEquation.BorderBrush = new SolidColorBrush(Colors.White);
 			tbOverTheTopSuperScriptExplosion.Text = "";
 			tbOverTheTopSuperScriptExplosion.Visibility = Visibility.Collapsed;
+			//⁰¹²³⁴⁵⁶⁷⁸⁹ˉ ^ 456  ⁴⁵⁶ 
+		}
+
+		void InsertPower(string str)
+		{
+			int selectionStart = tbxEquation.SelectionStart;
+			string equationText = tbxEquation.Text;
+			// Insert the str into equationText, at the selectionStart position.
+			//string firstPart = equationText.Substring(0, selectionStart);
+			//string secondPart = equationText.Substring(selectionStart);
+			//string newText = firstPart + str + secondPart;
+			tbxEquation.Text = tbxEquation.Text.Insert(selectionStart, str);
+			tbxEquation.SelectionStart = selectionStart + 1;
 		}
 
 		private void tbxEquation_KeyDown(object sender, KeyEventArgs e)
 		{
-			if (e.Key == Key.D6 && (Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift)
+			if (SuperscriptKeyPressed(e))
 			{
 				EnterSuperScriptMode();
 				e.Handled = true;
 				return;
 			}
-			if (e.Key == Key.Enter)
+			if (e.Key == Key.Space ||
+				e.Key == Key.Add || e.Key == Key.OemPlus ||
+				e.Key == Key.Multiply || (e.Key == Key.D8 && (Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift) ||
+				e.Key == Key.Divide || e.Key == Key.Oem2)
+			{
+				ExitSuperScriptMode();
+				e.Handled = false;
+				return;
+			}
+			if (e.Key == Key.Enter || e.Key == Key.Escape)
 			{
 				ExitSuperScriptMode();
 				e.Handled = true;
 				return;
 			}
+			if (inSuperScriptMode)
+			{
+				switch (e.Key)
+				{
+					case Key.D0:
+					case Key.NumPad0:
+						InsertPower("⁰");
+						break;
+					case Key.D1:
+					case Key.NumPad1:
+						InsertPower("¹");
+						break;
+					case Key.D2:
+					case Key.NumPad2:
+						InsertPower("²");
+						break;
+					case Key.D3:
+					case Key.NumPad3:
+						InsertPower("³");
+						break;
+					case Key.D4:
+					case Key.NumPad4:
+						InsertPower("⁴");
+						break;
+					case Key.D5:
+					case Key.NumPad5:
+						InsertPower("⁵");
+						break;
+					case Key.D6:
+					case Key.NumPad6:
+						InsertPower("⁶");
+						break;
+					case Key.D7:
+					case Key.NumPad7:
+						InsertPower("⁷");
+						break;
+					case Key.D8:
+					case Key.NumPad8:
+						InsertPower("⁸");
+						break;
+					case Key.D9:
+					case Key.NumPad9:
+						InsertPower("⁹");
+						break;
+					case Key.Subtract:
+					case Key.OemMinus:
+						InsertPower("ˉ");
+						break;
+					default:
+						return;
+				}
+				e.Handled = true;  // Ignore the key.
+			}
+		}
+
+		private static bool SuperscriptKeyPressed(KeyEventArgs e)
+		{
+			return e.Key == Key.D6 && (Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift;
 		}
 	}
 }

@@ -11,5 +11,11 @@ namespace SuperCalcCore
 		{
 
 		}
+
+		public UnitPower(UnitPower unitPower)
+		{
+			Name = unitPower.Name;
+			Power = unitPower.Power;
+		}
 	}
 }

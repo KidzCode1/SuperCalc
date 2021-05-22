@@ -43,15 +43,3 @@ namespace SuperCalcCore
 		}
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-

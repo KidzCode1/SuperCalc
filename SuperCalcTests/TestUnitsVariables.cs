@@ -37,6 +37,7 @@ namespace SuperCalcTests
 		public void TestUnitsPowers2()
 		{
 			Assert.AreEqual("8x²", "4x * 2x".ToNum());
+			Assert.AreEqual("-1/3v", "-2/3v + 1/3v".ToNum());
 		}
 
 		[TestMethod]
@@ -44,6 +45,13 @@ namespace SuperCalcTests
 		{
 			Assert.AreEqual("14", "7 birds / 1/2 bird".ToNum());
 			Assert.AreEqual("21 birds", "7 birds / 1/3".ToNum());
+		}
+
+		[TestMethod]
+		public void TestSimpleLikeUnits()
+		{
+			Assert.AreEqual("1 bird", "1 bird".ToNum().DisplayStr);
+			Assert.AreEqual("1m²", "1m²".ToNum().DisplayStr);
 		}
 
 		[TestMethod]
@@ -57,5 +65,3 @@ namespace SuperCalcTests
 
 	}
 }
-
-
