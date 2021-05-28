@@ -24,11 +24,34 @@ namespace SuperCalcTests
 				testContextInstance = value;
 			}
 		}
+
+		[TestMethod]
+		public void TestMetersPerSecond()
+		{
+			Assert.AreEqual("8 m/sec", "4 m/sec * 2".ToNum());
+			Assert.AreEqual("1/2 m/sec", "1/2 m / 1 sec".ToNum());  // 0.5 m secˉ¹
+			Assert.AreEqual("5 secˉ¹", "5 / 1 sec".ToNum());
+			Assert.AreEqual("8 birds", "4 birds * 2".ToNum());
+		}
+
+		[TestMethod]
+		public void TestMatchingUnitsWithPowers()
+		{
+			Assert.AreEqual("-3/56 x³", "4/7 x³ - 5/8 x³".ToNum());
+		}
+
 		[TestMethod]
 		public void Test()
 		{
 			Assert.AreEqual(3, "1 m^3".ToNum().GetPower("m"));
 			Assert.AreEqual(-123, "1 meters^-123".ToNum().GetPower("meter"));
+		}
+		[TestMethod]
+		public void TestFindUnitPowers()
+		{
+			FindUnitPower findUnitPower = FindUnitPower.Create("m");
+			Assert.AreEqual(1, findUnitPower.power);
+			Assert.AreEqual("m", findUnitPower.unit);
 		}
 	}
 }

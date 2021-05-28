@@ -66,7 +66,7 @@ namespace SuperCalc
 				tbxEquation.Background = new SolidColorBrush(Colors.White);
 
 				SuperNumber superNumber = tbxEquation.Text.ToNum();
-				SetAnswerDecimal(superNumber.DisplayStr);
+				SetAnswerDecimal(superNumber.DisplayDecimalStr);
 				SetAnswerImproperFraction(superNumber.ImproperFractionStr);
 				SetAnswerMixedFraction(superNumber.MixedNumberFractionStr);
 				AllGood();

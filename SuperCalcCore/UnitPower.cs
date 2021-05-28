@@ -5,7 +5,7 @@ namespace SuperCalcCore
 {
 	public class UnitPower
 	{
-		public string Name { get; set; }
+		public string Unit { get; set; }
 		public decimal Power { get; set; }
 		public UnitPower()
 		{
@@ -14,7 +14,7 @@ namespace SuperCalcCore
 
 		public UnitPower(UnitPower unitPower)
 		{
-			Name = unitPower.Name;
+			Unit = unitPower.Unit;
 			Power = unitPower.Power;
 		}
 	}

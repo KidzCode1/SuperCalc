@@ -26,8 +26,8 @@ namespace SuperCalcCore
 
 			FindUnitPower findUnitPower = new FindUnitPower();
 			findUnitPower.unit = RegexHelper.GetValue<string>(matches, "unit");
-			findUnitPower.power = RegexHelper.GetValue<double>(matches, "power");
-			findUnitPower.superScriptPower = RegexHelper.GetValue<string>(matches, "superScriptPower");
+			findUnitPower.power = RegexHelper.GetValue<double>(matches, "power", 1);
+			findUnitPower.superScriptPower = RegexHelper.GetValue<string>(matches, "superScriptPower", null);
 			return findUnitPower;
 		}
 	}

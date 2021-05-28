@@ -27,9 +27,9 @@
         
         -->
 
-        <Label x:Name="lblAnswerDecimal" Content="Enter an equation above!" MouseLeftButtonDown="lblAnswerDecimal_MouseLeftButtonDown"/>
-        <Label x:Name="lblAnswerImproperFraction" Content="" MouseLeftButtonDown="lblAnswerImproperFraction_MouseLeftButtonDown"/>
-        <Label x:Name="lblAnswerMixedNumberFraction" Content="" MouseLeftButtonDown="lblAnswerMixedNumberFraction_MouseLeftButtonDown"/>
+        <Label x:Name="lblAnswerDecimal" ToolTip="Decimal answer. Click to copy this to the clipboard." Content="Enter an equation above!" MouseLeftButtonDown="lblAnswerDecimal_MouseLeftButtonDown"/>
+        <Label x:Name="lblAnswerImproperFraction" ToolTip="Improper fraction answer. Click to copy this to the clipboard." Content="" MouseLeftButtonDown="lblAnswerImproperFraction_MouseLeftButtonDown"/>
+        <Label x:Name="lblAnswerMixedNumberFraction" ToolTip="Mixed number fraction answer. Click to copy this to the clipboard." Content="" MouseLeftButtonDown="lblAnswerMixedNumberFraction_MouseLeftButtonDown"/>
         <TextBlock Text="Click on a label above to copy that answer to the clipboard." Width="Auto" Height="Auto" FontSize="19"/>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0, 20, 0, 0"/>
         <Button x:Name="btnCreateTestCase" MaxWidth="370" Margin="0, 20, 0, 0" Click="btnCreateTestCase_Click">

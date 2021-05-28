@@ -29,7 +29,7 @@ namespace SuperCalcCore
 			{
 				if (Type == NumberType.Decimal)
 					return Value.ToString();
-				return $"{WholeNumber} {Numerator} / {Denominator}";
+				return MixedNumberFractionStr;
 			}
 		}
 		public int WholeNumber { get; set; }
@@ -68,23 +68,14 @@ namespace SuperCalcCore
 				string[] unitStrs = findNumberUnit.units.Split(' ');
 				foreach (string unitStr in unitStrs)
 				{
-					FindUnitPower findUnitPower = FindUnitPower.Create(unitStr);
-					if (findUnitPower != null)
+					int slashPos = unitStr.IndexOf("/");
+					if (slashPos > 0)
 					{
-						// We got something!!!
-						if (findUnitPower.superScriptPower != null)  
-						{
-							// We found the "¹²³" superscript power syntax!
-							// ˉ⁰¹²³⁴⁵⁶⁷⁸⁹
-							AddUnitPower(findUnitPower.unit, UtilityMethods.SuperScriptToNormal(findUnitPower.superScriptPower));
-						}
-						else
-						{
-							// We found the "^123" power syntax!
-							AddUnitPower(findUnitPower.unit, findUnitPower.power);
-						}
-						//findUnitPower.unit
+						AddUnit(unitStr.Substring(0, slashPos));
+						AddUnit(unitStr.Substring(slashPos + 1), -1);
 					}
+					else
+						AddUnit(unitStr);
 				}
 				//FindUnitPower
 				// TODO: Add the units/variables to this number, along with their powers.
@@ -109,6 +100,28 @@ namespace SuperCalcCore
 			InitializeFraction(WholeNumber, Numerator, Denominator);
 		}
 
+		private void AddUnit(string unitStr, double powerMultiplier = 1)
+		{
+			FindUnitPower findUnitPower = FindUnitPower.Create(unitStr);
+
+			if (findUnitPower != null)
+			{
+				// We got something!!!
+				if (findUnitPower.superScriptPower != null)
+				{
+					// We found the "¹²³" superscript power syntax!
+					// ˉ⁰¹²³⁴⁵⁶⁷⁸⁹
+					AddUnitPower(findUnitPower.unit, UtilityMethods.SuperScriptToNormal(findUnitPower.superScriptPower) * powerMultiplier);
+				}
+				else
+				{
+					// We found the "^123" power syntax!
+					AddUnitPower(findUnitPower.unit, findUnitPower.power * powerMultiplier);
+				}
+				//findUnitPower.unit
+			}
+		}
+
 		/// <summary>
 		/// Returns a new SuperNumber as a simple fraction.
 		/// </summary>
@@ -119,18 +132,96 @@ namespace SuperCalcCore
 			return clone;
 		}
 
+		bool HasAnyUnitsLongerThan1()
+		{
+			foreach (UnitPower unitPower in unitPowers)
+				if (unitPower.Unit.Length > 1)
+					return true;
+
+			return false;
+		}
+
 		string GetUnitsDisplayStr()
 		{
 			string result = "";
-			
+
+			// List all powers on top first.
+
+			// Then check to see if we have any powers on the bottom.
+
+			// If so, add a slash, then list the powers on the bottom.
+
+			bool needLeadingSpaces = HasAnyUnitsLongerThan1();
+
+			bool anyPowersFoundOnTop = false;
+			bool firstTimeThrough = true;
 			foreach (UnitPower unitPower in unitPowers)
 			{
-				result += $"{unitPower.Name}{UtilityMethods.NormalToSuperScript(unitPower.Power)}";
+				if (unitPower.Power > 0)
+				{
+					anyPowersFoundOnTop = true;
+					string powerStr = GetSuperscriptPowerStr(unitPower.Power);
+					string leadingSpace = GetLeadingSpace(needLeadingSpaces, firstTimeThrough);
+					result += $"{leadingSpace}{unitPower.Unit}{powerStr}";
+
+					firstTimeThrough = false;
+				}
 			}
 
-			return result;  // "m³"
+			firstTimeThrough = true;
+			foreach (UnitPower unitPower in unitPowers)
+			{
+				if (unitPower.Power < 0)
+				{
+					// At this point, unitPower.Power is negative.
+					decimal multiplier = 1;
+					if (anyPowersFoundOnTop)
+						multiplier = -1;
+					string powerStr = GetSuperscriptPowerStr(unitPower.Power * multiplier);
+					string leadingSpace = GetLeadingSpace(needLeadingSpaces, firstTimeThrough);
+
+					if (firstTimeThrough)
+						if (anyPowersFoundOnTop)  // Example, result at this point == "m" 
+						{
+							leadingSpace = "";
+							result += "/";
+						}
+
+					result += $"{leadingSpace}{unitPower.Unit}{powerStr}";
+					firstTimeThrough = false;
+				}
+			}
+
+			return result;  // " m³s"
 		}
 
+		private string GetLeadingSpace(bool needLeadingSpaces, bool firstTimeThrough)
+		{
+			string leadingSpace = " ";
+			if (firstTimeThrough && HasDenominator())
+			{
+				// We need the leading space
+			}
+			else if (!needLeadingSpaces)
+				leadingSpace = "";
+			return leadingSpace;
+		}
+
+		private static string GetSuperscriptPowerStr(decimal power)
+		{
+			string powerStr = "";
+			if (power != 1)
+				powerStr = $"{UtilityMethods.NormalToSuperScript(power)}";
+			return powerStr;
+		}
+
+		private bool HasDenominator()
+		{
+			if (Type == NumberType.Fraction && Numerator != 0)
+				return true;
+
+			return false;
+		}
 
 		string GetFractionDisplayStr()
 		{
@@ -304,6 +395,8 @@ namespace SuperCalcCore
 
 		public static SuperNumber operator +(SuperNumber superNumber1, SuperNumber superNumber2)
 		{
+			if (!superNumber1.HasMatchingUnits(superNumber2))
+				throw new ArgumentException("Units do not match");
 			if (superNumber1.Type == NumberType.Decimal || superNumber2.Type == NumberType.Decimal)
 				return new SuperNumber(superNumber1.Value + superNumber2.Value);
 
@@ -319,6 +412,7 @@ namespace SuperCalcCore
 			newDenominator = improperNum1.Denominator * improperNum2.Denominator;
 
 			SuperNumber answer = new SuperNumber(newWholeNum, newNumerator, newDenominator);
+			answer.CopyUnitsFrom(superNumber1);
 			answer.MakeFractionProper();
 			return answer;
 		}
@@ -328,22 +422,33 @@ namespace SuperCalcCore
 			SuperNumber negativeSup2 = superNumber2.CreateNegative();
 			return superNumber1 + negativeSup2;
 		}
+
 		public static SuperNumber operator /(SuperNumber superNumber1, SuperNumber superNumber2)
 		{
-			if (superNumber2.Type == NumberType.Decimal)
-				return new SuperNumber(superNumber1.Value / superNumber2.Value);
-			
 			SuperNumber reciprocalSup2 = superNumber2.CreateReciprocal();
 			return superNumber1 * reciprocalSup2;
 		}
 
-
-
 		public static SuperNumber operator *(SuperNumber superNumber1, SuperNumber superNumber2)
 		{
+			SuperNumber answer = null;
+
 			if (superNumber1.Type == NumberType.Decimal || superNumber2.Type == NumberType.Decimal)
-				return new SuperNumber(superNumber1.Value * superNumber2.Value);
-			
+				answer = new SuperNumber(superNumber1.Value * superNumber2.Value);
+			else
+				answer = MultiplyFractions(superNumber1, superNumber2);
+
+			// TODO: We are going to need to multiply the units!!!
+			answer.MultiplyUnits(superNumber1);
+			answer.MultiplyUnits(superNumber2);
+			answer.CleanUpAnyZeroPowerUnits();
+
+			return answer;
+		}
+
+		private static SuperNumber MultiplyFractions(SuperNumber superNumber1, SuperNumber superNumber2)
+		{
+			SuperNumber answer;
 			int newWholeNum;
 			int newNumerator;
 			int newDenominator;
@@ -362,7 +467,7 @@ namespace SuperCalcCore
 			newNumerator = Math.Abs(sn1.Numerator * sn2.Numerator);
 			newDenominator = Math.Abs(sn1.Denominator * sn2.Denominator);
 
-			SuperNumber answer = new SuperNumber(newSign * newWholeNum, newSign * newNumerator, newDenominator);
+			answer = new SuperNumber(newSign * newWholeNum, newSign * newNumerator, newDenominator);
 			answer.MakeFractionProper();
 			return answer;
 		}
@@ -407,9 +512,10 @@ namespace SuperCalcCore
 				if (Type == NumberType.Decimal)
 					return ConvertToFraction().CreateImproper().ImproperFractionStr;
 				else
-					return $"{Denominator * WholeNumber + Numerator}/{Denominator}";
+					return $"{Denominator * WholeNumber + Numerator}/{Denominator}" + GetUnitsDisplayStr();
 			}
 		}
+
 		public string MixedNumberFractionStr
 		{
 			get
@@ -417,8 +523,19 @@ namespace SuperCalcCore
 				if (Type == NumberType.Decimal)
 					return ConvertToFraction().MixedNumberFractionStr;
 				else if (WholeNumber == 0)
-					return $"{Numerator}/{Denominator}";
-				return $"{WholeNumber} {Numerator}/{Denominator}";
+					return $"{Numerator}/{Denominator}" + GetUnitsDisplayStr();
+				return $"{WholeNumber} {Numerator}/{Denominator}" + GetUnitsDisplayStr();
+			}
+		}
+		public string DisplayDecimalStr
+		{
+			get
+			{
+				if (Type == NumberType.Decimal)
+					return Value + GetUnitsDisplayStr();
+				else if (Type == NumberType.Fraction)
+					return ((decimal)WholeNumber + (decimal)Numerator / (decimal)Denominator) + GetUnitsDisplayStr();
+				return "Unknown type!!!";
 			}
 		}
 
@@ -427,6 +544,9 @@ namespace SuperCalcCore
 		/// </summary>
 		public void MakeFractionProper()
 		{
+			int savedSign = Sign;
+			Numerator = Math.Abs(Numerator);
+			WholeNumber = Math.Abs(WholeNumber);
 			List<int> numeratorFactors = SuperMath.GetFactors(Numerator);
 			List<int> denominatorFactors = SuperMath.GetFactors(Denominator);
 			List<int> commonFactors = SuperMath.GetCommon(numeratorFactors, denominatorFactors);
@@ -440,6 +560,11 @@ namespace SuperCalcCore
 				int offset = Numerator / Denominator;
 				WholeNumber += offset;
 				Numerator -= offset * Denominator;
+			}
+			if (savedSign == -1)
+			{
+				Numerator *= -1;
+				WholeNumber *= -1;
 			}
 		}
 
@@ -455,27 +580,55 @@ namespace SuperCalcCore
 
 		public SuperNumber CreateNegative()
 		{
+			SuperNumber result;
+			
 			if (Type == NumberType.Decimal)
-				return new SuperNumber(-Value);
-			return new SuperNumber(-WholeNumber, -Numerator, Denominator);
+				result = new SuperNumber(-Value);
+			else
+				result = new SuperNumber(-WholeNumber, -Numerator, Denominator);
+
+			result.CopyUnitsFrom(this);
+			return result;
 		}
-	
+
+		void CreateReciprocalUnits()
+		{
+			foreach (UnitPower unitPower in unitPowers)
+			{
+				unitPower.Power *= -1;
+			}
+		}
+
 		public SuperNumber CreateReciprocal()
 		{
+			// TODO: We need to invert the units, which means multiply their powers by -1.
+
+			SuperNumber result = null;
+
 			if (Type == NumberType.Decimal)
 				if (Value == 0)
 					throw new Exception("Cannot take the Reciprocal of zero!");
 				else
-					return new SuperNumber(1 / Value);
-			SuperNumber improperFraction = CreateImproper();
-			int newNumerator = improperFraction.Denominator;
-			int newDenominator = improperFraction.Numerator;
-			if (newDenominator < 0)
+					result = new SuperNumber(1 / Value);
+
+			if (result == null)
 			{
-				newDenominator *= -1;
-				newNumerator *= -1;
+				SuperNumber improperFraction = CreateImproper();
+				int newNumerator = improperFraction.Denominator;
+				int newDenominator = improperFraction.Numerator;
+				if (newDenominator < 0)
+				{
+					newDenominator *= -1;
+					newNumerator *= -1;
+				}
+				if (newDenominator == 0)
+					throw new Exception("Cannot take the Reciprocal of zero!");
+				result = new SuperNumber(0, newNumerator, newDenominator);
 			}
-			return new SuperNumber(0, newNumerator, newDenominator);
+
+			result.CopyUnitsFrom(this);
+			result.CreateReciprocalUnits();
+			return result;
 		}
 
 		void AddUnitPower(string unit, double power)
@@ -490,7 +643,7 @@ namespace SuperCalcCore
 			{
 				unitPowers.Add(new UnitPower()
 				{
-					Name = unit,
+					Unit = unit,
 					Power = (decimal)power
 				});
 			}
@@ -506,8 +659,48 @@ namespace SuperCalcCore
 
 		private UnitPower FindUnit(string unit)
 		{
-			return unitPowers.FirstOrDefault(x =>
-				UtilityMethods.MakeSingular(x.Name).ToLower() == UtilityMethods.MakeSingular(unit).ToLower());
+			return unitPowers.FirstOrDefault(x => UnitNamesMatch(unit, x.Unit));
+		}
+
+		private static bool UnitNamesMatch(string unitName1, string unitName2)
+		{
+			string singularUnitName1 = UtilityMethods.MakeSingular(unitName1).ToLower();
+			string singularUnitName2 = UtilityMethods.MakeSingular(unitName2).ToLower();
+			return singularUnitName1 == singularUnitName2;
+		}
+
+		bool HasMatchingUnits(SuperNumber otherSuperNumber)
+		{
+			List<UnitPower> otherUnitPowers = otherSuperNumber.unitPowers;
+			if (unitPowers.Count != otherUnitPowers.Count)
+				return false;
+			foreach (UnitPower unitPower in unitPowers)
+			{
+				UnitPower foundUnit = otherUnitPowers.FirstOrDefault(x => UnitNamesMatch(x.Unit, unitPower.Unit) && x.Power == unitPower.Power);
+				if (foundUnit == null)
+					return false;
+			}
+
+			return true;
+		}
+
+		void MultiplyUnits(SuperNumber superNumber)
+		{
+			foreach (UnitPower unitPower in superNumber.unitPowers)
+			{
+				UnitPower findUnit = FindUnit(unitPower.Unit);
+				if (findUnit == null)
+					unitPowers.Add(new UnitPower(unitPower));
+				else
+					findUnit.Power += unitPower.Power;
+			}
+		}
+
+		void CleanUpAnyZeroPowerUnits()
+		{
+			for (int i = unitPowers.Count - 1; i >= 0; i--)  // We have to count backwards to remove elements from the list.
+				if (unitPowers[i].Power == 0)
+					unitPowers.RemoveAt(i);
 		}
 	}
 }
