@@ -26,6 +26,32 @@ namespace SuperCalcTests
 		}
 
 		[TestMethod]
+		public void TestSingleVariables()
+		{
+			//SuperNumber.ClearAllKnownVariablesAndUnits();
+			//SuperNumber.AddKnownVariable("x");
+			//SuperNumber.AddKnownUnit("m");
+
+			// If it's a unit, and the number is 1, then keep the 1.
+			// If it's a variable, and the number is 1, then lose the 1.
+
+			// If it's a unit, and the number is 0, then keep the 0.
+			// If it's a variable, and the number is 0, then lose the **variable**!
+
+			Assert.AreEqual("2x²", "2x * x".ToNum());
+			Assert.AreEqual("2x²", "x * 2x".ToNum());
+			Assert.AreEqual("2x²", "1/2 x * 4x".ToNum());
+			Assert.AreEqual("1x²", "x * x".ToNum());
+			Assert.AreEqual("1cm²", "1cm * 1cm".ToNum());
+			Assert.AreEqual("1x²", "2x * 1/2 x".ToNum());
+			Assert.AreEqual("1", "x / x".ToNum());
+			Assert.AreEqual("2x", "x + x".ToNum());
+			Assert.AreEqual("0x", "x - x".ToNum());
+			Assert.AreEqual("0", "x - x".ToNum());
+			Assert.AreEqual("0m", "1m - 1m".ToNum());
+		}
+
+		[TestMethod]
 		public void TestUnitsPowers1()
 		{
 			// TODO: Support meters/second (dividing units) as a valid unit

@@ -248,7 +248,7 @@ namespace SuperCalcCore
 		{
 			get
 			{
-				if (Type == NumberType.Fraction)
+				if (Type == NumberType.Fraction && Value != 0)
 				{
 					SuperNumber superNumber = Simplify();
 					return superNumber.GetFractionDisplayStr();

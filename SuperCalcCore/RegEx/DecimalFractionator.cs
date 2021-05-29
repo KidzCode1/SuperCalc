@@ -18,6 +18,7 @@ namespace SuperCalcCore
 		/// <returns>Returns the new DecimalFractionator, or null if a no matches were found for the specified input.</returns>
 		public static DecimalFractionator Create(string input)
 		{
+
 			const string pattern = @"^((?<decimal>[+-]?((\d+(\.\d+)?)))|(((?<wholeNumber>[+-]?(\d+))\s)?(?<numerator>[+-]?(\d+))\s?/(?<denominator>(\d+))))$";
 
 			Regex regex = new Regex(pattern);

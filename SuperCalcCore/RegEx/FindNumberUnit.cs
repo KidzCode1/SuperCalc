@@ -16,7 +16,7 @@ namespace SuperCalcCore
 		/// <returns>Returns the new FindNumberUnit, or null if a no matches were found for the specified input.</returns>
 		public static FindNumberUnit Create(string input)
 		{
-			const string pattern = @"^(?<number>-?[\d.\s/]+)\s*(?<units>[a-zA-Z].*)$";
+			const string pattern = @"^(?<number>-?[\d.\s/]+)?\s*(?<units>[a-zA-Z].*)$";
 
 			Regex regex = new Regex(pattern);
 			MatchCollection matches = regex.Matches(input);
@@ -24,7 +24,7 @@ namespace SuperCalcCore
 				return null;
 
 			FindNumberUnit findNumberUnit = new FindNumberUnit();
-			findNumberUnit.number = RegexHelper.GetValue<string>(matches, "number").Trim();
+			findNumberUnit.number = RegexHelper.GetValue<string>(matches, "number", "1").Trim();
 			findNumberUnit.units = RegexHelper.GetValue<string>(matches, "units").Trim();
 			return findNumberUnit;
 		}

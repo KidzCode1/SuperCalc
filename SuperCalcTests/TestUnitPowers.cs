@@ -23,7 +23,7 @@ namespace SuperCalcTests
 			{
 				testContextInstance = value;
 			}
-		}
+		} 
 
 		[TestMethod]
 		public void TestMetersPerSecond()
