@@ -28,27 +28,29 @@ namespace SuperCalcTests
 		[TestMethod]
 		public void TestSingleVariables()
 		{
-			//SuperNumber.ClearAllKnownVariablesAndUnits();
-			//SuperNumber.AddKnownVariable("x");
-			//SuperNumber.AddKnownUnit("m");
+			SuperNumber.ClearAllKnownUnitVars();
+			SuperNumber.AddUnitVar("m", UnitVarType.Unit);
+			SuperNumber.AddUnitVar("x", UnitVarType.Variable);
+			SuperNumber.AddUnitVar("cm", UnitVarType.Unit, UnitFormat.SuppressLeadingSpace);
 
-			// If it's a unit, and the number is 1, then keep the 1.
-			// If it's a variable, and the number is 1, then lose the 1.
-
-			// If it's a unit, and the number is 0, then keep the 0.
-			// If it's a variable, and the number is 0, then lose the **variable**!
-
+			Assert.AreEqual("2x cm²", "x cm * 2 cm".ToNum());
+			Assert.AreEqual("x²cm²", "x cm * x cm".ToNum());
 			Assert.AreEqual("2x²", "2x * x".ToNum());
 			Assert.AreEqual("2x²", "x * 2x".ToNum());
 			Assert.AreEqual("2x²", "1/2 x * 4x".ToNum());
-			Assert.AreEqual("1x²", "x * x".ToNum());
-			Assert.AreEqual("1cm²", "1cm * 1cm".ToNum());
-			Assert.AreEqual("1x²", "2x * 1/2 x".ToNum());
+			Assert.AreEqual("x²", "x * x".ToNum());
+			Assert.AreEqual("x²", "2x * 1/2 x".ToNum());
 			Assert.AreEqual("1", "x / x".ToNum());
 			Assert.AreEqual("2x", "x + x".ToNum());
-			Assert.AreEqual("0x", "x - x".ToNum());
 			Assert.AreEqual("0", "x - x".ToNum());
+			
+			Assert.AreEqual("0", "1x - 1x".ToNum());
 			Assert.AreEqual("0m", "1m - 1m".ToNum());
+
+			Assert.AreEqual("x²", "x * x".ToNum());
+			Assert.AreEqual("0", "x - x".ToNum());
+			Assert.AreEqual("0m", "x m - x m".ToNum());
+			Assert.AreEqual("1cm²", "1cm * 1cm".ToNum());
 		}
 
 		[TestMethod]

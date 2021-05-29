@@ -28,7 +28,8 @@ namespace SuperCalcTests
 		[TestMethod]
 		public void TestMetersPerSecond()
 		{
-			Assert.AreEqual("8 m/sec", "4 m/sec * 2".ToNum());
+			Assert.AreEqual("2x", "2 * x".ToNum());
+			Assert.AreEqual("8m/sec", "4 m/sec * 2".ToNum());
 			Assert.AreEqual("1/2 m/sec", "1/2 m / 1 sec".ToNum());  // 0.5 m secˉ¹
 			Assert.AreEqual("5 secˉ¹", "5 / 1 sec".ToNum());
 			Assert.AreEqual("8 birds", "4 birds * 2".ToNum());
@@ -45,6 +46,7 @@ namespace SuperCalcTests
 		{
 			Assert.AreEqual(3, "1 m^3".ToNum().GetPower("m"));
 			Assert.AreEqual(-123, "1 meters^-123".ToNum().GetPower("meter"));
+			Assert.AreEqual("1.3504273504273504273504273501", "8 7/9 / 6.5".ToNum());
 		}
 		[TestMethod]
 		public void TestFindUnitPowers()

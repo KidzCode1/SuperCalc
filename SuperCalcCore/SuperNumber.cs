@@ -5,6 +5,7 @@ using System.Linq;
 
 namespace SuperCalcCore
 {
+
 	[DebuggerDisplay("{ValueAsStr}")]
 	public class SuperNumber
 	{
@@ -132,16 +133,27 @@ namespace SuperCalcCore
 			return clone;
 		}
 
-		bool HasAnyUnitsLongerThan1()
+		bool FilterMatches(string unitVarName, UnitVarType filter)
 		{
-			foreach (UnitPower unitPower in unitPowers)
-				if (unitPower.Unit.Length > 1)
-					return true;
+			if (filter == UnitVarType.Both)
+				return true;
 
-			return false;
+			UnitVarInfo unitVarInfo = GetUnitVarInfo(unitVarName);
+			if (unitVarInfo != null)
+				if (filter == UnitVarType.Unit)
+					if (unitVarInfo.UnitVarType == UnitVarType.Unit)
+						return true;
+					else
+						return false;
+				else if (filter == UnitVarType.Variable)
+					if (unitVarInfo.UnitVarType == UnitVarType.Variable)
+						return true;
+					else
+						return false;
+			return true;
 		}
 
-		string GetUnitsDisplayStr()
+		string GetVarUnitsDisplayStr(UnitVarType filter = UnitVarType.Both)
 		{
 			string result = "";
 
@@ -151,34 +163,36 @@ namespace SuperCalcCore
 
 			// If so, add a slash, then list the powers on the bottom.
 
-			bool needLeadingSpaces = HasAnyUnitsLongerThan1();
-
 			bool anyPowersFoundOnTop = false;
 			bool firstTimeThrough = true;
+			bool lastUnitHadPowerOfOne = false;
 			foreach (UnitPower unitPower in unitPowers)
 			{
-				if (unitPower.Power > 0)
+				if (unitPower.Power > 0 && FilterMatches(unitPower.UnitVarName, filter))
 				{
 					anyPowersFoundOnTop = true;
 					string powerStr = GetSuperscriptPowerStr(unitPower.Power);
-					string leadingSpace = GetLeadingSpace(needLeadingSpaces, firstTimeThrough);
-					result += $"{leadingSpace}{unitPower.Unit}{powerStr}";
+					string leadingSpace = GetLeadingSpace(unitPower.UnitVarName, firstTimeThrough, lastUnitHadPowerOfOne);
+					lastUnitHadPowerOfOne = powerStr == "";
+					result += $"{leadingSpace}{unitPower.UnitVarName}{powerStr}";
 
 					firstTimeThrough = false;
 				}
 			}
 
 			firstTimeThrough = true;
+			lastUnitHadPowerOfOne = false;
 			foreach (UnitPower unitPower in unitPowers)
 			{
-				if (unitPower.Power < 0)
+				if (unitPower.Power < 0 && FilterMatches(unitPower.UnitVarName, filter))
 				{
 					// At this point, unitPower.Power is negative.
 					decimal multiplier = 1;
 					if (anyPowersFoundOnTop)
 						multiplier = -1;
 					string powerStr = GetSuperscriptPowerStr(unitPower.Power * multiplier);
-					string leadingSpace = GetLeadingSpace(needLeadingSpaces, firstTimeThrough);
+					string leadingSpace = GetLeadingSpace(unitPower.UnitVarName, firstTimeThrough, lastUnitHadPowerOfOne);
+					lastUnitHadPowerOfOne = powerStr == "";
 
 					if (firstTimeThrough)
 						if (anyPowersFoundOnTop)  // Example, result at this point == "m" 
@@ -187,7 +201,7 @@ namespace SuperCalcCore
 							result += "/";
 						}
 
-					result += $"{leadingSpace}{unitPower.Unit}{powerStr}";
+					result += $"{leadingSpace}{unitPower.UnitVarName}{powerStr}";
 					firstTimeThrough = false;
 				}
 			}
@@ -195,16 +209,36 @@ namespace SuperCalcCore
 			return result;  // " m³s"
 		}
 
-		private string GetLeadingSpace(bool needLeadingSpaces, bool firstTimeThrough)
+		bool ShouldSuppressLeadingSpace(string unitVarName)
 		{
-			string leadingSpace = " ";
+			UnitVarInfo unitVarInfo = GetUnitVarInfo(unitVarName);
+			if (unitVarInfo == null)
+				return unitVarName.Length == 1;
+
+			if (unitVarInfo.UnitVarType == UnitVarType.Variable && unitVarInfo.UnitName.Length == 1)
+				return true;
+			
+			if (unitVarInfo.UnitFormat == UnitFormat.SuppressLeadingSpace)
+				return true;
+
+			return false;
+		}
+
+		private string GetLeadingSpace(string unitVarName, bool firstTimeThrough, bool lastUnitHadPowerOfOne)
+		{
+			if (lastUnitHadPowerOfOne)
+				return " ";
+
 			if (firstTimeThrough && HasDenominator())
-			{
-				// We need the leading space
-			}
-			else if (!needLeadingSpaces)
-				leadingSpace = "";
-			return leadingSpace;
+				return " ";
+
+			if (ShouldSuppressLeadingSpace(unitVarName))
+				return string.Empty;
+
+			if (unitVarName != null && unitVarName.Length > 1)
+				return " ";
+
+			return "";
 		}
 
 		private static string GetSuperscriptPowerStr(decimal power)
@@ -223,11 +257,6 @@ namespace SuperCalcCore
 			return false;
 		}
 
-		string GetFractionDisplayStr()
-		{
-			return GetMixedFraction() + GetUnitsDisplayStr();
-		}
-
 		private string GetMixedFraction()
 		{
 			if (WholeNumber == 0)
@@ -244,17 +273,42 @@ namespace SuperCalcCore
 			}
 		}
 
+		bool HasVariable()
+		{
+			foreach (UnitPower unitPower in unitPowers)
+			{
+				UnitVarInfo unitVarInfo = GetUnitVarInfo(unitPower.UnitVarName);
+				if (unitVarInfo != null)
+					if (unitVarInfo.UnitVarType == UnitVarType.Variable)
+						return true;
+			}
+			return false;
+		}
+
 		public string DisplayStr
 		{
 			get
 			{
+				string numberPart;
 				if (Type == NumberType.Fraction && Value != 0)
+					numberPart = Simplify().GetMixedFraction();
+				else
+					numberPart = Value.ToString();
+
+
+				if (Value == 1)
+					if (HasVariable())
+						return GetVarUnitsDisplayStr().TrimStart(' ');
+
+				if (Value == 0)
 				{
-					SuperNumber superNumber = Simplify();
-					return superNumber.GetFractionDisplayStr();
+					if (HasVariable())
+						return numberPart + GetVarUnitsDisplayStr(UnitVarType.Unit);
+					//		If it has any variables, we lose all the **variables**!	
 				}
 
-				return Value.ToString() + GetUnitsDisplayStr();
+
+				return numberPart + GetVarUnitsDisplayStr();
 			}
 		}
 		
@@ -351,6 +405,8 @@ namespace SuperCalcCore
 
 		public bool Equals(SuperNumber superNumber)
 		{
+			if (superNumber == null)
+				return false;
 			if (Type == NumberType.Fraction && superNumber.Type == NumberType.Fraction)
 			{
 				return AreFractionsEquivalent(superNumber);
@@ -512,7 +568,7 @@ namespace SuperCalcCore
 				if (Type == NumberType.Decimal)
 					return ConvertToFraction().CreateImproper().ImproperFractionStr;
 				else
-					return $"{Denominator * WholeNumber + Numerator}/{Denominator}" + GetUnitsDisplayStr();
+					return $"{Denominator * WholeNumber + Numerator}/{Denominator}" + GetVarUnitsDisplayStr();
 			}
 		}
 
@@ -523,8 +579,8 @@ namespace SuperCalcCore
 				if (Type == NumberType.Decimal)
 					return ConvertToFraction().MixedNumberFractionStr;
 				else if (WholeNumber == 0)
-					return $"{Numerator}/{Denominator}" + GetUnitsDisplayStr();
-				return $"{WholeNumber} {Numerator}/{Denominator}" + GetUnitsDisplayStr();
+					return $"{Numerator}/{Denominator}" + GetVarUnitsDisplayStr();
+				return $"{WholeNumber} {Numerator}/{Denominator}" + GetVarUnitsDisplayStr();
 			}
 		}
 		public string DisplayDecimalStr
@@ -532,9 +588,9 @@ namespace SuperCalcCore
 			get
 			{
 				if (Type == NumberType.Decimal)
-					return Value + GetUnitsDisplayStr();
+					return Value + GetVarUnitsDisplayStr();
 				else if (Type == NumberType.Fraction)
-					return ((decimal)WholeNumber + (decimal)Numerator / (decimal)Denominator) + GetUnitsDisplayStr();
+					return ((decimal)WholeNumber + (decimal)Numerator / (decimal)Denominator) + GetVarUnitsDisplayStr();
 				return "Unknown type!!!";
 			}
 		}
@@ -643,7 +699,7 @@ namespace SuperCalcCore
 			{
 				unitPowers.Add(new UnitPower()
 				{
-					Unit = unit,
+					UnitVarName = unit,
 					Power = (decimal)power
 				});
 			}
@@ -659,7 +715,7 @@ namespace SuperCalcCore
 
 		private UnitPower FindUnit(string unit)
 		{
-			return unitPowers.FirstOrDefault(x => UnitNamesMatch(unit, x.Unit));
+			return unitPowers.FirstOrDefault(x => UnitNamesMatch(unit, x.UnitVarName));
 		}
 
 		private static bool UnitNamesMatch(string unitName1, string unitName2)
@@ -676,7 +732,7 @@ namespace SuperCalcCore
 				return false;
 			foreach (UnitPower unitPower in unitPowers)
 			{
-				UnitPower foundUnit = otherUnitPowers.FirstOrDefault(x => UnitNamesMatch(x.Unit, unitPower.Unit) && x.Power == unitPower.Power);
+				UnitPower foundUnit = otherUnitPowers.FirstOrDefault(x => UnitNamesMatch(x.UnitVarName, unitPower.UnitVarName) && x.Power == unitPower.Power);
 				if (foundUnit == null)
 					return false;
 			}
@@ -688,7 +744,7 @@ namespace SuperCalcCore
 		{
 			foreach (UnitPower unitPower in superNumber.unitPowers)
 			{
-				UnitPower findUnit = FindUnit(unitPower.Unit);
+				UnitPower findUnit = FindUnit(unitPower.UnitVarName);
 				if (findUnit == null)
 					unitPowers.Add(new UnitPower(unitPower));
 				else
@@ -701,6 +757,30 @@ namespace SuperCalcCore
 			for (int i = unitPowers.Count - 1; i >= 0; i--)  // We have to count backwards to remove elements from the list.
 				if (unitPowers[i].Power == 0)
 					unitPowers.RemoveAt(i);
+		}
+
+		static List<UnitVarInfo> unitVarInfos = new List<UnitVarInfo>();
+
+		public static void ClearAllKnownUnitVars()
+		{
+			unitVarInfos.Clear();
+		}
+
+		public static UnitVarInfo GetUnitVarInfo(string unitName)
+		{
+			return unitVarInfos.FirstOrDefault(x => x.UnitName == unitName);
+		}
+
+		public static void AddUnitVar(string unitName, UnitVarType unitVarType, UnitFormat unitFormat = UnitFormat.Normal)
+		{
+			UnitVarInfo unitVarInfo = GetUnitVarInfo(unitName);
+			if (unitVarInfo != null)
+			{
+				unitVarInfo.UnitFormat = unitFormat;
+				unitVarInfo.UnitVarType = unitVarType;
+				return;
+			}
+			unitVarInfos.Add(new UnitVarInfo(unitName, unitVarType, unitFormat));
 		}
 	}
 }

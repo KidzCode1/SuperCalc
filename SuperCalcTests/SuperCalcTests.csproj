@@ -56,6 +56,7 @@
     <Compile Include="RegexTests.cs" />
     <Compile Include="TestUnitPowers.cs" />
     <Compile Include="TestUnitsVariables.cs" />
+    <Compile Include="UnitVarInfoTests.cs" />
     <Compile Include="UtilityMethodTests.cs" />
   </ItemGroup>
   <ItemGroup>

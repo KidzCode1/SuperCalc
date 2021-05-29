@@ -52,7 +52,10 @@
     <Compile Include="SuperMath.cs" />
     <Compile Include="SuperNumber.cs" />
     <Compile Include="SuperNumberExtensions.cs" />
+    <Compile Include="UnitFormat.cs" />
     <Compile Include="UnitPower.cs" />
+    <Compile Include="UnitVarInfo.cs" />
+    <Compile Include="UnitVarType.cs" />
     <Compile Include="UtilityMethods.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
